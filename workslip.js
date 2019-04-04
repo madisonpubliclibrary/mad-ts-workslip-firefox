@@ -26,7 +26,6 @@
   let copyTableBody = document.getElementById('copyTableBody');
 
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log(request);
     if (request.poNum !== '') {
       poNum.textContent = request.poNum;
     } else {
@@ -209,6 +208,5 @@
     }
 
     window.print();
-    //window.close();
   });
 })();
