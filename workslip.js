@@ -22,6 +22,8 @@
   let edition = document.querySelector('td.edition');
   let description = document.querySelector('td.description');
   let bibRecId = document.querySelector('td.bibRecId');
+  let rush = document.getElementById('rush');
+  let totalCopies = document.getElementById('totalCopies');
 
   let copyTableBody = document.getElementById('copyTableBody');
 
@@ -156,6 +158,14 @@
       bibRecId.textContent = request.bibRecId;
     } else {
       bibRecId.parentElement.style.display = 'none';
+    }
+
+    if (request.rush) {
+      rush.style.display = 'block';
+    }
+
+    if (request.totalCopies) {
+      totalCopies.textContent = request.totalCopies;
     }
 
     for  (let copy of request.copies) {
