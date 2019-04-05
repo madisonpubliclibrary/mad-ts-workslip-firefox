@@ -2,10 +2,18 @@
   "addons": {
     "mad-ts-workslip@lrschneider.com": {
       "updates": [
-        { "version": "0.1",
+        {
+          "version": "0.1",
           "update_link": "https://raw.githubusercontent.com/lucasschneider/mad-ts-workslip-firefox/master/releases/mad-ts-workslip-0.1.xpi",
           "applications": {
-            "gecko": { "strict_min_version": "57" }
+            "gecko": { "strict_min_version": "58" }
+          }
+        },
+        {
+          "version": "0.1",
+          "update_link": "https://raw.githubusercontent.com/lucasschneider/mad-ts-workslip-firefox/master/releases/mad-ts-workslip-0.3.xpi",
+          "applications": {
+            "gecko": { "strict_min_version": "58" }
           }
         }
       ]
