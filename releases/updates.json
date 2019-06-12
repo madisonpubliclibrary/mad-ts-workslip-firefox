@@ -57,6 +57,13 @@
           "applications": {
             "gecko": { "strict_min_version": "58" }
           }
+        },
+        {
+          "version": "0.10",
+          "update_link": "https://raw.githubusercontent.com/lucasschneider/mad-ts-workslip-firefox/master/releases/mad-ts-workslip-0.10.xpi",
+          "applications": {
+            "gecko": { "strict_min_version": "58" }
+          }
         }
       ]
     }
