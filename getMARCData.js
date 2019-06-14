@@ -31,7 +31,14 @@
 
     if (marc099a) marcData['099a'] = marc099a.value;
 
-    if (marc300a && marc300a.value !== '') bibDescriptionArr.push(marc300a.value);
+    if (marc300a && marc300a.value !== '') {
+      bibDescriptionArr.push(marc300a.value);
+      // Try to get number of pages
+      let pagesNum = document.querySelector('[id^="tag_300_subfield_a"]').value.match(/\d+ pages/);
+      if (pagesNum.length > 0) pagesNum = pagesNum[0].match(/\d+/);
+      if (pagesNum.length > 0) marcData.numPages = parseInt(pagesNum[0]);
+      if (marcData.hasOwnProperty('numPages')) console.log(marcData.numPages);
+    }
     if (marc300b && marc300b.value !== '') bibDescriptionArr.push(marc300b.value);
     if (marc300c && marc300c.value !== '') bibDescriptionArr.push(marc300c.value);
     if (marc300e && marc300e.value !== '') bibDescriptionArr.push(marc300e.value);

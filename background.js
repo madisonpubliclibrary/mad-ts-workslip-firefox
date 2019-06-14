@@ -78,6 +78,7 @@ function printWorkslip(tab) {
     Promise.all([getHolds, getMARCData]).then(res => {
       data.holds = res[0].holds;
       data.linkCopies = res[0].linkCopies;
+      data.isNewADFIC = res[0].isNewADFIC;
       data.marcData = res[1];
 
       browser.tabs.create({
@@ -85,7 +86,7 @@ function printWorkslip(tab) {
       }).then(tab => {
         setTimeout(() => {
           browser.tabs.sendMessage(tab.id, data).then(() => {
-            browser.tabs.remove(tab.id);
+            //browser.tabs.remove(tab.id);
           });
         }, 450);
       });

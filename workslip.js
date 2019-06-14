@@ -28,6 +28,7 @@
   let rush = document.getElementById('rush');
   let getitCopies = document.getElementById('getitCopies');
   let linkCopies = document.getElementById('linkCopies');
+  let otherNotes = document.querySelector('td.getitDescription');
 
   let copyTableBody = document.getElementById('copyTableBody');
 
@@ -107,6 +108,13 @@
         marc300.textContent = request.marcData['300'];
       } else {
         marc300.parentElement.style.display = 'none';
+      }
+
+      // Check if New AD FIC book over 500 pages
+      if (request.marcData.hasOwnProperty('numPages') && request.hasOwnProperty('isNewADFIC')) {
+        if (request.isNewADFIC && request.marcData.numPages >= 500) {
+          otherNotes.textContent = 'NEW 4-WEEK AD FIC (' + request.marcData.numPages + ' pages)';
+        }
       }
     } else {
       isbnMARC.parentElement.style.display = 'none';
@@ -236,6 +244,6 @@
       copyTableBody.appendChild(tr);
     }
 
-    window.print();
+    //window.print();
   });
 })();
