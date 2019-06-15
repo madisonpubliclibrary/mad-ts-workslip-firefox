@@ -34,6 +34,7 @@
               /^BOOKS AD FIC/.test(item.children[collectionIdx].textContent.trim())) {
             console.log('location new and is BOOKS AD FIC');
             itemData.isNewADFIC = true;
+            break;
           }
         }
       }

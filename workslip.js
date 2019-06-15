@@ -28,7 +28,7 @@
   let rush = document.getElementById('rush');
   let getitCopies = document.getElementById('getitCopies');
   let linkCopies = document.getElementById('linkCopies');
-  let otherNotes = document.querySelector('td.getitDescription');
+  let otherNotes = document.querySelector('td.otherNotes');
 
   let copyTableBody = document.getElementById('copyTableBody');
 
@@ -94,7 +94,7 @@
 
       // Override title if it was found in MARC data
       if (request.marcData.hasOwnProperty('245')) {
-        titleTH.textContent = 'MARC 245' + request.marcData['245fields']
+        titleTH.textContent = 'MARC 245' + request.marcData['245fields'] + ':';
         title.textContent = request.marcData['245'];
       }
 
