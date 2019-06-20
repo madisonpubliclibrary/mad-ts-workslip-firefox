@@ -14,6 +14,8 @@
   let marc099a = document.querySelector('td.marc099a');
   let isbn = document.querySelector('td.isbn');
   let isbnMARC = document.querySelector('td.isbnMARC');
+  let upc024a = document.querySelector('td.upc024a');
+  let supplier028a = document.querySelector('td.supplier028a');
   let issn = document.querySelector('td.issn');
   let ismn = document.querySelector('td.ismn');
   let upc = document.querySelector('td.upc');
@@ -78,6 +80,23 @@
     if (request.hasOwnProperty('marcData') && request.marcData !== '') {
       if (request.marcData.hasOwnProperty('020') && request.isbn !== '' && request.marcData['020'].includes(request.isbn)) {
         isbnMARC.textContent = 'Yes';
+      }
+
+      if (request.marcData.hasOwnProperty('024a') && request.marcData['024a'].length > 0 && request.upc !== '') {
+        upc024a.parentElement.style.display = '';
+        if (request.marcData['024a'].includes(request.upc)) {
+          upc024a.textContent = 'Yes';
+        }
+      }
+
+      if (request.marcData.hasOwnProperty('028a') && request.marcData['028a'].length > 0 && request.supplierNum !== '') {
+        supplier028a.parentElement.style.display = '';
+        for (let marc028a of request.marcData['028a']) {
+          if (marc028a.includes(request.supplierNum)) {
+            marc028a.textContent = 'Yes';
+            break;
+          }
+        }
       }
 
       if (request.marcData.hasOwnProperty('092')) {

@@ -29,10 +29,8 @@
     if (locationIdx != null && collectionIdx != null) {
       for (let item of items.children) {
         if (/^(HAW|HPB|LAK|MAD|MEA|MSB|PIN|SEQ|SMB)$/.test(item.children[libIdx].textContent.trim())) {
-          console.log('is mpl');
           if (/^NEW/.test(item.children[locationIdx].textContent.trim()) &&
               /^BOOKS AD FIC/.test(item.children[collectionIdx].textContent.trim())) {
-            console.log('location new and is BOOKS AD FIC');
             itemData.isNewADFIC = true;
             break;
           }
@@ -46,7 +44,7 @@
       itemdata.linkCopies = 0;
     } else if (holdsNotice) {
       itemData.holds = /\d+/.exec(holdsNotice.textContent.match(/There are a total of \d+ holds/)[0])[0];
-      itemdata.linkCopies = linkCopies.children.length - 1;
+      itemData.linkCopies = linkCopies.children.length - 1;
     } else {
       itemData.holds = 0;
       itemData.linkCopies = linkCopies.children.length - 1;

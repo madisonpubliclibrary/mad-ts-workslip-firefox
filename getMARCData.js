@@ -7,6 +7,17 @@
   } else {
     const marcData = {};
 
+    const marc024a = document.querySelectorAll('[id^="tag_024_subfield_a"]');
+    const marc028a = document.querySelectorAll('[id^="tag_028_subfield_a"]');
+
+    if (marc024a.length > 0) {
+      marcData['024a'] = [...marc024a].map(x => x.value).filter(x => x !== '');
+    }
+
+    if (marc028a.length > 0) {
+      marcData['028a'] = [...marc028a].map(x => x.value).filter(x => x !== '');
+    }
+
     const marc092a = document.querySelector('[id^="tag_092_subfield_a"]');
     const marc092b = document.querySelector('[id^="tag_092_subfield_b"]');
     const marc099a = document.querySelector('[id^="tag_099_subfield_a"]');
@@ -35,9 +46,10 @@
       bibDescriptionArr.push(marc300a.value);
       // Try to get number of pages
       let pagesNum = document.querySelector('[id^="tag_300_subfield_a"]').value.match(/\d+ pages/);
-      if (pagesNum.length > 0) pagesNum = pagesNum[0].match(/\d+/);
-      if (pagesNum.length > 0) marcData.numPages = parseInt(pagesNum[0]);
-      if (marcData.hasOwnProperty('numPages')) console.log(marcData.numPages);
+      if (pagesNum) {
+        if (pagesNum.length > 0) pagesNum = pagesNum[0].match(/\d+/);
+        if (pagesNum.length > 0) marcData.numPages = parseInt(pagesNum[0]);
+      }
     }
     if (marc300b && marc300b.value !== '') bibDescriptionArr.push(marc300b.value);
     if (marc300c && marc300c.value !== '') bibDescriptionArr.push(marc300c.value);
