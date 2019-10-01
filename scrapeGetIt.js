@@ -1,93 +1,84 @@
 (function(){
   'use strict';
+  let contentDoc = document.getElementById('staff-iframe');
+  let data = {"dateToday": (new Date()).toLocaleDateString(), "rush": false};
 
-  return new Promise((resolve, reject) => {
+  if (contentDoc) {
+    contentDoc = contentDoc.contentWindow.document.getElementById('frame').contentWindow.document;
 
-    let contentDoc = document.getElementById('frame');
-    let data = {"dateToday": (new Date()).toLocaleDateString(), "rush": false};
+    let title = contentDoc.getElementById('pou-title');
+    data.title = title ? title.value : '';
+    let author = contentDoc.getElementById('pou-author');
+    data.author = author ? author.value : '';
+    let ean13 = contentDoc.getElementById('pou-EAN13');
+    data.ean13 = ean13 ? ean13.value : '';
+    let isbn = contentDoc.getElementById('pou-ISBN');
+    data.isbn = isbn ? isbn.value : '';
+    let issn = contentDoc.getElementById('pou-ISSN');
+    data.issn = issn ? issn.value : '';
+    let ismn = contentDoc.getElementById('pou-ISMN');
+    data.ismn = ismn ? ismn.value : '';
+    let upc = contentDoc.getElementById('pou-UPC');
+    data.upc = upc ? upc.value : '';
+    let manufactNum = contentDoc.getElementById('pou-manufacturer_number');
+    data.manufactNum = manufactNum ? manufactNum.value : '';
+    let supplierNum = contentDoc.getElementById('pou-supplier_number');
+    data.supplierNum = supplierNum ? supplierNum.value : '';
+    let publisher = contentDoc.getElementById('pou-publisher');
+    data.publisher = publisher ? publisher.value : '';
+    let listPrice = contentDoc.getElementById('pou-list_price');
+    data.listPrice = listPrice ? listPrice.value : '';
+    let discountedPrice = contentDoc.getElementById('pou-discounted_price');
+    data.discountedPrice = discountedPrice ? discountedPrice.value : '';
+    let datePub = contentDoc.getElementById('pou-date_of_publication');
+    data.datePub = datePub ? datePub.value : '';
+    let edition = contentDoc.getElementById('pou-edition');
+    data.edition = edition ? edition.value : '';
+    let description = contentDoc.getElementById('pou-description');
+    data.description = description ? description.value : '';
+    let bibRecId = contentDoc.getElementById('pou-bibliographic_record_id');
+    data.bibRecId = bibRecId ? bibRecId.value : '';
+    let getitCopies = /\d+ Copies/.exec(contentDoc.querySelector('.active div[ng-controller="PurchaseOrderLinesUpdateCtrl"]').textContent);
 
-    if (contentDoc) {
-      contentDoc = contentDoc.contentWindow.document;
+    data.getitCopies = getitCopies.length === 1 ? /\d+/.exec(getitCopies[0])[0] : '?';
+    let orderLineRef = contentDoc.getElementById('pou-order_line_reference');
+    if (orderLineRef && orderLineRef.value.length > 0) {
+      data.orderLineRef = orderLineRef.value;
+      if (/[^a-z]*rush[^a-z]*/i.test(orderLineRef.value)) {
+        data.rush = true;
+      }
+      let orderLineRefParts = orderLineRef.value.split('-');
+      orderLineRefParts.pop();
+      data.poNum = orderLineRefParts.join('-');
+    } else {
+      data.orderLineRef = '';
+      data.poNum = '';
+    }
 
-      let totalItems = contentDoc.querySelector('.active div[ng-include="\'app/purchase_order_line_copies/index.html\'"] .ngFooterTotalItems span').textContent.match(/\d+/);
+    let rushCheckbox = contentDoc.getElementById('pou-rush');
+    if (rushCheckbox.checked) data.rush = true;
 
-      let title = contentDoc.querySelector('.active input[ng-model="formdata.title"]');
-      data.title = title ? title.value : '';
-      let author = contentDoc.querySelector('.active input[ng-model="formdata.author"]');
-      data.author = author ? author.value : '';
-      let ean13 = contentDoc.querySelector('.active input[ng-model="formdata.EAN13"]');
-      data.ean13 = ean13 ? ean13.value : '';
-      let isbn = contentDoc.querySelector('.active input[ng-model="formdata.ISBN"]');
-      data.isbn = isbn ? isbn.value : '';
-      let issn = contentDoc.querySelector('.active input[ng-model="formdata.ISSN"]');
-      data.issn = issn ? issn.value : '';
-      let ismn = contentDoc.querySelector('.active input[ng-model="formdata.ISMN"]');
-      data.ismn = ismn ? ismn.value : '';
-      let upc = contentDoc.querySelector('.active input[ng-model="formdata.UPC"]');
-      data.upc = upc ? upc.value : '';
-      let manufactNum = contentDoc.querySelector('.active input[ng-model="formdata.manufacturer_number"]');
-      data.manufactNum = manufactNum ? manufactNum.value : '';
-      let supplierNum = contentDoc.querySelector('.active input[ng-model="formdata.supplier_number"]');
-      data.supplierNum = supplierNum ? supplierNum.value : '';
-      let publisher = contentDoc.querySelector('.active input[ng-model="formdata.publisher"]');
-      data.publisher = publisher ? publisher.value : '';
-      let listPrice = contentDoc.querySelector('.active input[ng-model="formdata.list_price"]');
-      data.listPrice = listPrice ? listPrice.value : '';
-      let discountedPrice = contentDoc.querySelector('.active input[ng-model="formdata.discounted_price"]');
-      data.discountedPrice = discountedPrice ? discountedPrice.value : '';
-      let datePub = contentDoc.querySelector('.active input[ng-model="formdata.date_of_publication"]');
-      data.datePub = datePub ? datePub.value : '';
-      let edition = contentDoc.querySelector('.active input[ng-model="formdata.edition"]');
-      data.edition = edition ? edition.value : '';
-      let description = contentDoc.querySelector('.active input[ng-model="formdata.description"]');
-      data.description = description ? description.value : '';
-      let bibRecId = contentDoc.querySelector('.active input[ng-model="formdata.bibliographic_record_id"]');
-      data.bibRecId = bibRecId ? bibRecId.value : '';
-      let getitCopies = contentDoc.querySelector('.active div[ng-controller="PurchaseOrderLinesSummary"] .po_header_lines p:first-child');
-      data.getitCopies = getitCopies !== null ? getitCopies.textContent.match(/\d+/)[0] : '?';
-      let orderLineRef = contentDoc.querySelector('.active input[ng-model="formdata.order_line_reference"]');
-      if (orderLineRef && orderLineRef.value.length > 0) {
-        data.orderLineRef = orderLineRef.value;
-        if (/[^a-z]*rush[^a-z]*/i.test(orderLineRef.value)) {
+    data.copies = [];
+    let rows = contentDoc.querySelectorAll('#polc-index div[ui-grid-row="row"]');
+
+    if (rows) {
+      rows = Array.from(rows).filter((v,i) => {return i >= rows.length/2});
+      for (let row of rows) {
+        let copy = {};
+
+        copy.copyLoc = row.children[1].textContent.trim();
+        copy.receiptStatus = row.children[3].textContent.trim().substring(0,3) + '\'d';
+        copy.staffNote = row.children[5].textContent.trim();
+
+        if (/[^a-z]*rush[^a-z]*/i.test(copy.staffNote)) {
           data.rush = true;
         }
-        let orderLineRefParts = orderLineRef.value.split('-');
-        orderLineRefParts.pop();
-        data.poNum = orderLineRefParts.join('-');
-      } else {
-        data.orderLineRef = '';
-        data.poNum = '';
+
+        data.copies.push(copy);
       }
 
-      let rushCheckbox = contentDoc.querySelector('.active input[ng-model="formdata.rush"]');
-      if (rushCheckbox.checked) data.rush = true;
-
-      data.copies = [];
-      let copyTable = contentDoc.querySelector('.active div[ng-include="\'app/purchase_order_line_copies/index.html\'"] .ngCanvas');
-
-      if (copyTable) {
-        for (let row of copyTable.children) {
-          row = row.children[0].children[1];
-
-          let copy = {};
-
-          copy.copyLoc = row.children[0].textContent.trim();
-          copy.receiptStatus = row.children[2].textContent.trim().substring(0,3) + '\'d';
-          copy.staffNote = row.children[7].textContent.trim();
-
-          if (/[^a-z]*rush[^a-z]*/i.test(copy.staffNote)) {
-            data.rush = true;
-          }
-
-          data.copies.push(copy);
-        }
-
-        data.copies.sort((a,b) => {return a.copyLoc > b.copyLoc ? 1 : b.copyLoc > a.copyLoc ? -1 : 0;});
-      }
-
-      resolve(data);
-    } else {
-      reject('Failed to find inner content document');
+      data.copies.sort((a,b) => {return a.copyLoc > b.copyLoc ? 1 : b.copyLoc > a.copyLoc ? -1 : 0;});
     }
-  }).then(res => {return res});
+  }
+  return data;
 })();
