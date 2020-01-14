@@ -1,4 +1,14 @@
 browser.menus.create({
+  "id": "get-item-copies",
+  "title": "Get Item Copies",
+  "documentUrlPatterns": [
+    "https://mad.scls.kohalibrary.com/app/staff/acquisitions",
+    "https://mad.scls.kohalibrary.com/getit/app/static/partials/index-dev.html"],
+  "contexts": ["all"],
+  "visible": true
+});
+
+browser.menus.create({
   "id": "print-workslip",
   "title": "Print MAD-TS Workslip",
   "documentUrlPatterns": [
@@ -11,6 +21,11 @@ browser.menus.create({
 browser.menus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "print-workslip") {
     printWorkslip(tab);
+  } else if (info.menuItemId === "get-item-copies") {
+    chrome.tabs.executeScript({
+      "file": "copiesListener.js",
+      "allFrames": true
+    });
   }
 });
 
@@ -18,6 +33,11 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.key === 'printWorkslip') {
     browser.tabs.query({'currentWindow': true, 'active': true}).then(tabs => {
       printWorkslip(tabs[0]);
+    });
+  } else if (request.key === 'listenForCopies') {
+    chrome.tabs.executeScript({
+      "file": "copiesListener.js",
+      "allFrames": true
     });
   }
 });

@@ -1,7 +1,10 @@
-(function(){
+(function() {
   'use strict';
   let contentDoc = document.getElementById('staff-iframe');
-  let data = {"dateToday": (new Date()).toLocaleDateString(), "rush": false};
+  let data = {
+    "dateToday": (new Date()).toLocaleDateString(),
+    "rush": false
+  };
 
   if (contentDoc) {
     contentDoc = contentDoc.contentWindow.document.getElementById('frame').contentWindow.document;
@@ -59,16 +62,14 @@
     if (rushCheckbox.checked) data.rush = true;
 
     data.copies = [];
-    let rows = contentDoc.querySelectorAll('#polc-index div[ui-grid-row="row"]');
 
-    if (rows) {
-      rows = Array.from(rows).filter((v,i) => {return i >= rows.length/2});
-      for (let row of rows) {
+    if (window.bibCopies && window.bibCopies.length > 0) {
+      for (let item of window.bibCopies) {
         let copy = {};
 
-        copy.copyLoc = row.children[1].textContent.trim();
-        copy.receiptStatus = row.children[3].textContent.trim().substring(0,3) + '\'d';
-        copy.staffNote = row.children[4].textContent.trim();
+        copy.copyLoc = item.loc;
+        copy.receiptStatus = item.stat;
+        copy.staffNote = item.note;
 
         if (/[^a-z]*rush[^a-z]*/i.test(copy.staffNote)) {
           data.rush = true;
@@ -76,9 +77,31 @@
 
         data.copies.push(copy);
       }
+      window.bibCopies = [];
+    } else {
+      let header = contentDoc.querySelectorAll('#polc-index .ui-grid-header');
 
-      data.copies.sort((a,b) => {return a.copyLoc > b.copyLoc ? 1 : b.copyLoc > a.copyLoc ? -1 : 0;});
+      if (header.length > 1) {
+        header = header[1].textContent.split(/\s+/);
+        const locationIdx = header.indexOf("Location");
+        const statusIdx = header.indexOf("Status");
+        const notesIdx = header.indexOf("Notes");
+
+        let rows = contentDoc.querySelectorAll('#polc-index div[ui-grid-row="row"]');
+        for (let i = 0; i < rows.length; i++) {
+          let copy = {}
+          if (rows[i].textContent !== '') {
+
+            data.copies.push({
+              "copyLoc": rows[i].children[locationIdx].textContent.trim(),
+              "receiptStatus": rows[i].children[statusIdx].textContent.trim().substring(0, 3) + '\'d',
+              "staffNote": rows[i].children[notesIdx].textContent.trim()
+            });
+          }
+        }
+      }
     }
+    data.copies.sort((a,b)=>{return a.copyLoc > b.copyLoc ? 1 : b.copyLoc > a.copyLoc ? -1 : 0;});
   }
   return data;
 })();
