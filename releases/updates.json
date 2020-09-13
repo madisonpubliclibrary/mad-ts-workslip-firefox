@@ -113,6 +113,27 @@
           "applications": {
             "gecko": { "strict_min_version": "58" }
           }
+        },
+        {
+          "version": "1.4",
+          "update_link": "https://raw.githubusercontent.com/lucasschneider/mad-ts-workslip-firefox/master/releases/mad-ts-workslip-1.4.xpi",
+          "applications": {
+            "gecko": { "strict_min_version": "58" }
+          }
+        },
+        {
+          "version": "1.5",
+          "update_link": "https://raw.githubusercontent.com/lucasschneider/mad-ts-workslip-firefox/master/releases/mad-ts-workslip-1.5.xpi",
+          "applications": {
+            "gecko": { "strict_min_version": "58" }
+          }
+        },
+        {
+          "version": "1.6",
+          "update_link": "https://raw.githubusercontent.com/lucasschneider/mad-ts-workslip-firefox/master/releases/mad-ts-workslip-1.6.xpi",
+          "applications": {
+            "gecko": { "strict_min_version": "58" }
+          }
         }
       ]
     }
