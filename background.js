@@ -1,139 +1,140 @@
-browser.menus.create({
+browser.contextMenus.create({
   "id": "get-item-copies",
   "title": "Get Item Copies",
   "documentUrlPatterns": [
-    "https://mad.scls.bibliovation.com/app/staff/acquisitions",
-    "https://mad.scls.bibliovation.com/getit/app/static/partials/index-dev.html"],
+    "*://*.bibliovation.com/app/staff/acquisitions",
+    "*://*.bibliovation.com/getit/app/static/partials/index-dev.html"],
   "contexts": ["all"],
   "visible": true
 });
 
-browser.menus.create({
+browser.contextMenus.create({
   "id": "print-workslip",
   "title": "Print MAD-TS Workslip",
   "documentUrlPatterns": [
-    "https://mad.scls.bibliovation.com/app/staff/acquisitions",
-    "https://mad.scls.bibliovation.com/getit/app/static/partials/index-dev.html"],
+    "*://*.bibliovation.com/app/staff/acquisitions",
+    "*://*.bibliovation.com/getit/app/static/partials/index-dev.html"],
   "contexts": ["all"],
   "visible": true
 });
 
-browser.menus.onClicked.addListener((info, tab) => {
+browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "print-workslip") {
     printWorkslip(tab);
   } else if (info.menuItemId === "get-item-copies") {
-    chrome.tabs.executeScript({
-      "file": "copiesListener.js",
-      "allFrames": true
+    browser.scripting.executeScript({
+      "target": {"tabId": tab.id, "allFrames": true},
+      "files": ["/scripts/copiesListener.js"]
     });
   }
 });
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.key === 'printWorkslip') {
-    browser.tabs.query({'currentWindow': true, 'active': true}).then(tabs => {
+    return browser.tabs.query({'currentWindow': true, 'active': true}).then(tabs => {
       printWorkslip(tabs[0]);
     });
   } else if (request.key === 'listenForCopies') {
-    chrome.tabs.executeScript({
-      "file": "copiesListener.js",
-      "allFrames": true
+    return browser.tabs.query({'currentWindow': true, 'active': true}).then(tabs => {
+      browser.scripting.executeScript({
+        "target": {"tabId": tabs[0].id, "allFrames": true},
+        "files": ["/scripts/copiesListener.js"]
+      });
+    });
+  } else if (request.key === 'verifyBarcode') {
+    return new Promise((resolve, reject) => {
+      browser.tabs.create({
+        "url": "https://mad.scls.bibliovation.com/app/search/" + request.itemBarcode,
+        "active": true
+      }).then(tab => {
+        setTimeout(() => {
+          browser.scripting.executeScript({
+            "target": {"tabId": tab.id},
+            "files": ["/scripts/verifyBarcode.js"]
+          }).then(resArr => {
+            browser.tabs.remove(tab.id);
+            const itemFound = resArr[0].result;
+            resolve(itemFound);
+          })
+        }, 100);
+      });
+    });
+  } else if (request.key === 'printBarcode') {
+    browser.tabs.create({
+      "url": "/printBarcode/printBarcode.html?barcode=" + request.barcode,
+      "active": false
+    }).then(tab => {
+      setTimeout(() => {
+        browser.tabs.remove(tab.id);
+      }, 500);
     });
   }
 });
 
 function printWorkslip(tab) {
-  browser.tabs.executeScript(tab.id, {
-    "file": "scrapeGetIt.js"
-  }).then(resArr => {
-    let data = resArr[0];
+  browser.scripting.executeScript({
+    "target": {"tabId": tab.id},
+    "files": ["/scripts/scrapeGetIt.js"]
+  }).then(resultArr => {
+    if (resultArr.length > 0) {
+      let data = resultArr[0].result;
 
-    let getHolds = new Promise(function(resolve, reject) {
-      if (data.bibRecId.length > 0) {
-        browser.tabs.create({
-          "url": "https://mad.scls.bibliovation.com/app/staff/bib/" + data.bibRecId + "/details",
-          "active": true
-        }).then(tab => {
-          let waitForHolds = setInterval(() => {
-            browser.tabs.executeScript(tab.id, {
-              "file": "getNumHolds.js"
-            }).then(holdsArr => {
-              if (holdsArr && holdsArr.length > 0 && holdsArr[0] !== null) {
-                if (holdsArr[0].hasOwnProperty('holds')) {
-                  browser.tabs.remove(tab.id);
-                  clearInterval(waitForHolds);
-                  resolve(holdsArr[0]);
-                } else if (holdsArr[0] === 'holdsError') {
-                  reject('Unable to find item holds data; not logged into B\'vation.');
-                }
-              }
+      let getHolds = new Promise((resolve, reject) => {
+        if (data.bibRecId.length > 0) {
+          browser.tabs.create({
+            "url": "https://mad.scls.bibliovation.com/app/staff/bib/"
+                    + data.bibRecId + "/details",
+            "active": true
+          }).then(holdsTab => {
+            browser.scripting.executeScript({
+              "target": {"tabId": holdsTab.id},
+              "files": ["/scripts/getNumHolds.js"]
+            }).then(injectionResults => {
+              browser.tabs.remove(holdsTab.id);
+              resolve(injectionResults[0].result);
             });
-          }, 400);
-        });
-      } else {
-        resolve('No bib in B\'vation');
-      }
-    });
+          });
+        } else {
+          reject('Biblio ID empty in GetIT')
+        }
+      });
 
-    let getMARCData = new Promise(function(resolve, reject) {
-      if (data.bibRecId.length > 0) {
-        browser.tabs.create({
-          "url": "https://mad.scls.bibliovation.com/app/staff/marced/edit/" +
-                  data.bibRecId,
-          "active": true
-        }).then(tab => {
-          let marcTimeout = 50; // 50 * 400ms = 20sec
-          let waitForMARC = setInterval(() => {
-            marcTimeout--;
-            if (marcTimeout === 0) {
-              browser.tabs.remove(tab.id);
-              clearInterval(waitForMARC);
-              resolve('');
-            }
-            browser.tabs.executeScript(tab.id, {
-              "file": "getMARCData.js"
-            }).then(marcArr => {
-              if (marcArr && marcArr.length > 0 && marcArr[0] !== null) {
-                if (marcArr[0].hasOwnProperty('092') || marcArr[0].hasOwnProperty('099a') || marcArr[0].hasOwnProperty('300')) {
-                  browser.tabs.remove(tab.id);
-                  clearInterval(waitForMARC);
-                  resolve(marcArr[0]);
-                } else if (marcArr[0] === 'marcError') {
-                  reject('Unable to find MARC data; not logged into B\'vation.');
-                }
-              }
+      let getMARCData = new Promise((resolve, reject) => {
+        if (data.bibRecId.length > 0) {
+          browser.tabs.create({
+            "url": "https://mad.scls.bibliovation.com/app/staff/marced/edit/"
+                    + data.bibRecId,
+            "active": true
+          }).then(marcTab => {
+            browser.scripting.executeScript({
+              "target": {"tabId": marcTab.id},
+              "files": ["/scripts/getMARCData.js"]
+            }).then(injectionResults => {
+              browser.tabs.remove(marcTab.id);
+              resolve(injectionResults[0].result);
             });
-          }, 400);
-        });
-      } else {
-        resolve('No bib in B\'vation');
-      }
-    });
+          });
+        } else {
+          reject('Biblio ID empty in GetIT')
+        }
+      });
 
-    Promise.all([getHolds, getMARCData]).then(res => {
-      if (res[0] === 'No bib in B\'vation') {
-        data.holds = res[0];
-      } else {
+      Promise.all([getHolds, getMARCData]).then(res => {
         data.holds = res[0].holds;
         data.linkCopies = res[0].linkCopies;
         data.isNewADFIC = res[0].isNewADFIC;
         data.marcData = res[1];
-      }
 
-      browser.tabs.create({
-        "url": browser.runtime.getURL("workslip.html")
-      }).then(tab => {
-        setTimeout(() => {
-          browser.tabs.sendMessage(tab.id, data).then(() => {
-            browser.tabs.remove(tab.id);
-          });
-        }, 450);
+        browser.tabs.create({
+          "url": browser.runtime.getURL("workslip.html")
+        }).then(tab => {
+          setTimeout(() => {
+            browser.tabs.sendMessage(tab.id, data).then(() => {
+              browser.tabs.remove(tab.id);
+            });
+          }, 250);
+        });
       });
-    }, reject => {
-      browser.tabs.create({
-        "url": "https://mad.scls.bibliovation.com",
-        "active": true
-      });
-    });
+    }
   });
-};
+}
