@@ -74,7 +74,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }).then(tab => {
       setTimeout(() => {
         browser.tabs.sendMessage(tab.id, request.data).then(() => {
-          //browser.tabs.remove(tab.id);
+          browser.tabs.remove(tab.id);
         });
       }, 450);
     });

@@ -75,7 +75,7 @@
     }
 
     if (request.listPrice !== '') {
-      listPrice.textContent = request.listPrice;
+      listPrice.textContent = '$' + request.listPrice;
     } else {
       listPrice.parentElement.style.display = 'none';
     }
@@ -87,7 +87,7 @@
     }
 
     if (request.pubDate !== '') {
-      datePub.textContent = '$' + request.pubDate;
+      datePub.textContent = request.pubDate;
     } else {
       datePub.parentElement.style.display = 'none';
     }
