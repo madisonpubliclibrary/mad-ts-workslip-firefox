@@ -68,6 +68,16 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
         browser.tabs.remove(tab.id);
       }, 500);
     });
+  } else if (request.key === 'printTempWorkslip') {
+    browser.tabs.create({
+      "url": browser.runtime.getURL("tempWorkslip/tempWorkslip.html")
+    }).then(tab => {
+      setTimeout(() => {
+        browser.tabs.sendMessage(tab.id, request.data).then(() => {
+          //browser.tabs.remove(tab.id);
+        });
+      }, 450);
+    });
   }
 });
 
