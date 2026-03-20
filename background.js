@@ -41,33 +41,6 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
         "files": ["/scripts/copiesListener.js"]
       });
     });
-  } else if (request.key === 'verifyBarcode') {
-    return new Promise((resolve, reject) => {
-      browser.tabs.create({
-        "url": "https://mad.scls.bibliovation.com/app/search/" + request.itemBarcode,
-        "active": true
-      }).then(tab => {
-        setTimeout(() => {
-          browser.scripting.executeScript({
-            "target": {"tabId": tab.id},
-            "files": ["/scripts/verifyBarcode.js"]
-          }).then(resArr => {
-            browser.tabs.remove(tab.id);
-            const itemFound = resArr[0].result;
-            resolve(itemFound);
-          })
-        }, 100);
-      });
-    });
-  } else if (request.key === 'printBarcode') {
-    browser.tabs.create({
-      "url": "/printBarcode/printBarcode.html?barcode=" + request.barcode,
-      "active": false
-    }).then(tab => {
-      setTimeout(() => {
-        browser.tabs.remove(tab.id);
-      }, 500);
-    });
   } else if (request.key === 'printTempWorkslip') {
     browser.tabs.create({
       "url": browser.runtime.getURL("tempWorkslip/tempWorkslip.html")
