@@ -148,6 +148,13 @@
           "applications": {
             "gecko": { "strict_min_version": "58" }
           }
+        },
+        {
+          "version": "2026.3.30",
+          "update_link": "https://raw.githubusercontent.com/madisonpubliclibrary/mad-ts-workslip-firefox/master/releases/mad-ts-workslip-2026.03.30.xpi",
+          "applications": {
+            "gecko": { "strict_min_version": "58" }
+          }
         }
       ]
     }

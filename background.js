@@ -1,30 +1,30 @@
-browser.contextMenus.create({
+browser.menus.create({
   "id": "get-item-copies",
   "title": "Get Item Copies",
   "documentUrlPatterns": [
-    "*://*.bibliovation.com/app/staff/acquisitions",
-    "*://*.bibliovation.com/getit/app/static/partials/index-dev.html"],
+    "https://mad.scls.bibliovation.com/app/staff/acquisitions",
+    "https://mad.scls.bibliovation.com/getit/app/static/partials/index-dev.html"],
   "contexts": ["all"],
   "visible": true
 });
 
-browser.contextMenus.create({
+browser.menus.create({
   "id": "print-workslip",
   "title": "Print MAD-TS Workslip",
   "documentUrlPatterns": [
-    "*://*.bibliovation.com/app/staff/acquisitions",
-    "*://*.bibliovation.com/getit/app/static/partials/index-dev.html"],
+    "https://mad.scls.bibliovation.com/app/staff/acquisitions",
+    "https://mad.scls.bibliovation.com/getit/app/static/partials/index-dev.html"],
   "contexts": ["all"],
   "visible": true
 });
 
-browser.contextMenus.onClicked.addListener((info, tab) => {
+browser.menus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "print-workslip") {
     printWorkslip(tab);
   } else if (info.menuItemId === "get-item-copies") {
-    browser.scripting.executeScript({
-      "target": {"tabId": tab.id, "allFrames": true},
-      "files": ["/scripts/copiesListener.js"]
+    browser.tabs.executeScript({
+      "file": "/scripts/copiesListener.js",
+      "allFrames": true
     });
   }
 });
@@ -36,9 +36,9 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
   } else if (request.key === 'listenForCopies') {
     return browser.tabs.query({'currentWindow': true, 'active': true}).then(tabs => {
-      browser.scripting.executeScript({
-        "target": {"tabId": tabs[0].id, "allFrames": true},
-        "files": ["/scripts/copiesListener.js"]
+      browser.tabs.executeScript({
+        "file": "/scripts/copiesListener.js",
+        "allFrames": true
       });
     });
   } else if (request.key === 'printTempWorkslip') {
@@ -69,12 +69,11 @@ function printWorkslip(tab) {
                     + data.bibRecId + "/details",
             "active": true
           }).then(holdsTab => {
-            browser.scripting.executeScript({
-              "target": {"tabId": holdsTab.id},
-              "files": ["/scripts/getNumHolds.js"]
+            browser.tabs.executeScript(holdsTab.id, {
+              "file": "/scripts/getNumHolds.js"
             }).then(injectionResults => {
               browser.tabs.remove(holdsTab.id);
-              resolve(injectionResults[0].result);
+              resolve(injectionResults[0]);
             });
           });
         } else {
@@ -89,12 +88,11 @@ function printWorkslip(tab) {
                     + data.bibRecId,
             "active": true
           }).then(marcTab => {
-            browser.scripting.executeScript({
-              "target": {"tabId": marcTab.id},
-              "files": ["/scripts/getMARCData.js"]
+            browser.tabs.executeScript(marcTab.id,{
+              "file": "/scripts/getMARCData.js"
             }).then(injectionResults => {
               browser.tabs.remove(marcTab.id);
-              resolve(injectionResults[0].result);
+              resolve(injectionResults[0]);
             });
           });
         } else {

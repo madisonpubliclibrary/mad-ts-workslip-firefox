@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "MAD-TS Workslip",
-  "version": "2026.3.23",
+  "version": "2026.3.30",
   "author": "Lucas Schneider",
   "description": "MAD-TS Workslip adds a context menu link to print workslips in GetIt Acquisitions with the Bibliovation ILS.",
   "homepage_url": "https://lrschneider.com/mad-ts-workslip-firefox",
@@ -40,7 +40,8 @@
     },
 
     "background": {
-      "scripts": ["/background.js"]
+      "scripts": ["/background.js"],
+      "persistent": true
     },
 
     "content_scripts": [
@@ -60,9 +61,9 @@
 
     "permissions": [
       "activeTab",
-      "contextMenus",
+      "menus",
       "scripting",
-      "webNavigation",
-      "*://mad.scls.bibliovation.com/*"
+      "tabs",
+      "*://*.bibliovation.com/*"
     ]
 }
