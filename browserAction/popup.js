@@ -1,7 +1,7 @@
 (()=>{
   'use strict';
   class Copy {
-    constructor(copyID,location,fund,status,staffNote) {
+    constructor(status,copyID,location,fund,staffNote) {
       this.copyID = copyID;
       this.location = location;
       this.fund = fund,
@@ -53,14 +53,14 @@
       const cols = rows[i].split('\t').map(v=>{return v.trim()});
       if (cols.length === DATA_EXPECTED_ROWS) {
         if (i === 0) {
-          workslip = new Workslip(cols[0],cols[1],cols[2],cols[3],cols[4],cols[5],cols[6],cols[7],cols[8],cols[9],cols[10],cols[11],cols[12],cols[13],cols[18],cols[19],cols[21]);
+          workslip = new Workslip(cols[0],cols[1],cols[3],cols[4],cols[5],cols[6],cols[7],cols[8],cols[9],cols[10],cols[11],cols[12],cols[13],cols[14],cols[18],cols[19],cols[21]);
         }
         if (i > 0 && (workslip.isbn !== cols[5] || workslip.upc !== cols[6])) {
           error.textContent = "Selection contains more than one ISBN or UPC value.";
           error.style.display = 'block';
           return;
         }
-        workslip.addCopy(cols[14],cols[15],cols[16],cols[17],cols[20]);
+        workslip.addCopy(cols[2],cols[15],cols[16],cols[17],cols[20]);
       } else {
         error.textContent = "Cannot parse entered data.";
         error.style.display = 'block';

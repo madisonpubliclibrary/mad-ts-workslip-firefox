@@ -105,7 +105,12 @@ function printWorkslip(tab) {
         data.linkCopies = res[0].linkCopies;
         data.isNewADFIC = res[0].isNewADFIC;
         data.marcData = res[1];
-
+      }).catch(noBib => {
+        data.holds = "No bib in B'vation";
+        data.linkCopies = '';
+        data.isNewADFIC = '';
+        data.marcData = [];
+      }).then(()=>{
         browser.tabs.create({
           "url": browser.runtime.getURL("workslip.html")
         }).then(tab => {

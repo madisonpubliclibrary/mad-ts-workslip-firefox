@@ -9,14 +9,13 @@
     const author = document.querySelector('td.author');
     const bibRecId = document.querySelector('td.bibRecId');
     const ean13 = document.querySelector('td.ean13');
-    const callNum = document.querySelector('td.callNum');
     const isbn = document.querySelector('td.isbn');
     const upc = document.querySelector('td.upc');
     const publisher = document.querySelector('td.publisher');
     const listPrice = document.querySelector('td.listPrice');
     const discountedPrice = document.querySelector('td.discountedPrice');
     const datePub = document.querySelector('td.datePub');
-    const otherNotes = document.querySelector('td.otherNotes');
+    const fund = document.querySelector('td.fund');
 
     const copyTableBody = document.getElementById('copyTableBody');
 
@@ -88,6 +87,12 @@
 
     if (request.pubDate !== '') {
       datePub.textContent = request.pubDate;
+    } else {
+      datePub.parentElement.style.display = 'none';
+    }
+
+    if (request.fund !== '') {
+      datePub.textContent = request.fund;
     } else {
       datePub.parentElement.style.display = 'none';
     }
