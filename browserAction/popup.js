@@ -55,7 +55,7 @@
         if (i === 0) {
           workslip = new Workslip(cols[0],cols[1],cols[3],cols[4],cols[5],cols[6],cols[7],cols[8],cols[9],cols[10],cols[11],cols[12],cols[13],cols[14],cols[18],cols[19],cols[21]);
         }
-        if (i > 0 && (workslip.isbn !== cols[5] || workslip.upc !== cols[6])) {
+        if (i > 0 && (workslip.isbn !== cols[6] || workslip.upc !== cols[7])) {
           error.textContent = "Selection contains more than one ISBN or UPC value.";
           error.style.display = 'block';
           return;
